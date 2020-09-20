@@ -1,3 +1,5 @@
+const handlers = require('./lib/handlers')
+
 const express = require('express');
 const expresshandlebars = require('express-handlebars');
 
@@ -17,27 +19,24 @@ app.use(express.static(__dirname + '/public'))
 
 // some routes
 //
-app.get('/', (req, res) => res.render('home'))
+app.get('/', handlers.home)
 
-app.get('/about', (req, res) => {
-    
-    res.render('about', { fortune: fortune.getFortune() })
+app.get('/about', handlers.about)
+
+app.get('/greeting', (req, res) => {
+    res.render(handlers.greeting, {
+        message: 'Hello dear programmer!',
+        style: req.query.style,
+        userid: req.cookies.userid,
+        username: req.session.username
+    })
 })
    
 // custom 404 page
-app.use( (req, res) => {
-    
-    res.status(404)
-    res.render('404')
-});
+app.use( handlers.notFound);
 
 // custom 500 page
-app.use( (err,req, res,next) => {
-    console.error(err.message)
-    
-    res.status(500)
-    res.render('500')
-});
+app.use( handlers.serverError);
 
 app.listen(port, () =>
     console.log(`Express Started in port ${port};`)
